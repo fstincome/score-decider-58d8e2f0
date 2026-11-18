@@ -11,7 +11,7 @@ import {
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { buildRanking, computeReveal } from "@/lib/scoring";
+import { buildRanking, computeReveal, ordinalLabel } from "@/lib/scoring";
 import { useCompetition } from "@/lib/useCompetition";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,12 +96,23 @@ function Index() {
     await reload();
   };
 
-  const podiumIcon = (i: number) => {
-    if (i === 0) return <Trophy className="h-6 w-6 text-[color:var(--gold)]" />;
-    if (i === 1) return <Medal className="h-6 w-6 text-[color:var(--silver)]" />;
-    if (i === 2) return <Award className="h-6 w-6 text-[color:var(--bronze)]" />;
-    return <span className="text-sm font-semibold text-muted-foreground">{i + 1}</span>;
-  };
+  const medalIcon = (i: number) =>
+    i === 0 ? (
+      <Trophy className="h-5 w-5 shrink-0 text-[color:var(--gold)]" />
+    ) : i === 1 ? (
+      <Medal className="h-5 w-5 shrink-0 text-[color:var(--silver)]" />
+    ) : i === 2 ? (
+      <Award className="h-5 w-5 shrink-0 text-[color:var(--bronze)]" />
+    ) : null;
+
+  const badgeClass = (i: number) =>
+    i === 0
+      ? "bg-[color:var(--gold)]/20 text-foreground ring-[color:var(--gold)]/60"
+      : i === 1
+        ? "bg-[color:var(--silver)]/25 text-foreground ring-[color:var(--silver)]/60"
+        : i === 2
+          ? "bg-[color:var(--bronze)]/20 text-foreground ring-[color:var(--bronze)]/60"
+          : "bg-muted text-muted-foreground ring-border";
 
   return (
     <div className="min-h-screen bg-background">
@@ -172,9 +183,18 @@ function Index() {
                         : ""
                 }`}
               >
-                <div className="flex h-10 w-10 items-center justify-center">{podiumIcon(i)}</div>
+                <div className="flex w-16 shrink-0 items-center justify-center">
+                  <span
+                    className={`inline-flex min-w-[3.5rem] justify-center rounded-full px-2.5 py-1 text-xs font-bold tracking-wide ring-1 ${badgeClass(i)}`}
+                  >
+                    {ordinalLabel(rank)}
+                  </span>
+                </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-base font-semibold">{r.team.name}</div>
+                  <div className="flex items-center gap-2">
+                    {medalIcon(i)}
+                    <div className="truncate text-base font-semibold">{r.team.name}</div>
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     Équipe n°{r.team.project_number} · {r.submitted}/{juries.length} juré
                     {r.submitted > 1 ? "s" : ""}

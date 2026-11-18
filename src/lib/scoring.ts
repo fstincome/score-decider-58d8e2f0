@@ -96,3 +96,8 @@ export function computeReveal<T>(ranked: T[], s: RevealSettings) {
   const shown = s.reveal_mode === "one" ? ordered.slice(0, Math.max(0, Math.min(s.reveal_step, n))) : ordered;
   return { shown, total: n };
 }
+
+/** Libellé de rang en français : 1er, 2e, 3e… */
+export function ordinalLabel(rank: number) {
+  return rank === 1 ? "1er" : `${rank}e`;
+}
