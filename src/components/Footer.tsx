@@ -9,7 +9,14 @@ export function Footer() {
         </p>
         <p className="text-xs text-muted-foreground">
           Made with <span className="text-[color:var(--heart)]">💗</span> by{" "}
-          <span className="font-medium text-foreground">Free Tech Institute</span>
+          <a
+            href="https://freeti.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            Free Tech Institute
+          </a>
         </p>
       </div>
     </footer>
