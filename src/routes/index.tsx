@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6">
+    <div className="flex min-h-[calc(100vh-6rem)] items-center justify-center bg-background px-6">
       <div className="max-w-md space-y-5 text-center">
         <Trophy className="mx-auto h-12 w-12 text-[color:var(--gold)]" />
         <h1 className="text-3xl font-bold tracking-tight">JuryScore</h1>

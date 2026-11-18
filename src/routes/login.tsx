@@ -68,7 +68,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-[calc(100vh-6rem)] items-center justify-center bg-background px-4">
       <Toaster richColors />
       <Card className="w-full max-w-md p-6">
         <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
