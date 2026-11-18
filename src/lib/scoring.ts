@@ -3,6 +3,7 @@ export type Competition = {
   name: string;
   locked: boolean;
   slug?: string | null;
+  owner_jury_id?: string | null;
   created_at: string;
 } & Partial<RevealSettings>;
 

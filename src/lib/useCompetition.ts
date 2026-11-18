@@ -52,7 +52,7 @@ export function useCompetition(competitionId: string | null) {
     const [comp, crit, tms, jrs, scs] = await Promise.all([
       supabase
         .from("competitions")
-        .select("id, name, locked, created_at, slug, reveal_order, reveal_count, reveal_mode, reveal_step")
+        .select("id, name, locked, created_at, slug, owner_jury_id, reveal_order, reveal_count, reveal_mode, reveal_step")
         .eq("id", competitionId)
         .maybeSingle(),
       supabase

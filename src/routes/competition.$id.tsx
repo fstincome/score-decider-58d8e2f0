@@ -1,11 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Award, ClipboardList, Lock, Medal, Trophy } from "lucide-react";
+import {
+  Award,
+  ChevronRight,
+  ClipboardList,
+  Lock,
+  Medal,
+  RotateCcw,
+  Trophy,
+} from "lucide-react";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { buildRanking, computeReveal } from "@/lib/scoring";
 import { useCompetition } from "@/lib/useCompetition";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { readSession, type AppSession } from "@/lib/session";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -44,7 +54,7 @@ export const Route = createFileRoute("/competition/$id")({
 function Index() {
   const { id: param } = Route.useParams();
   const id = useResolvedId(param);
-  const { competition, criteria, teams, juries, scores } = useCompetition(id);
+  const { competition, criteria, teams, juries, scores, reload } = useCompetition(id);
   const locked = !!competition?.locked;
 
   const ranking = buildRanking(teams, criteria, scores)
@@ -61,6 +71,30 @@ function Index() {
     ? reveal.shown
     : ranking.map((row, i) => ({ row, rank: i + 1 }));
   const oneByOne = locked && competition?.reveal_mode === "one";
+
+  const [session, setSession] = useState<AppSession | null>(null);
+  useEffect(() => {
+    setSession(readSession());
+  }, []);
+
+  // Seul le président de cette compétition (ou l'admin) pilotte la proclamation.
+  const isOwnerPresident =
+    session?.role === "jury" &&
+    session.isPresident &&
+    !!competition?.owner_jury_id &&
+    session.juryId === competition.owner_jury_id;
+  const canControl = session?.role === "admin" || isOwnerPresident;
+
+  const step = competition?.reveal_step ?? 0;
+  const setStep = async (n: number) => {
+    if (!competition) return;
+    const { error } = await supabase
+      .from("competitions")
+      .update({ reveal_step: n })
+      .eq("id", competition.id);
+    if (error) return toast.error("Erreur : " + error.message);
+    await reload();
+  };
 
   const podiumIcon = (i: number) => {
     if (i === 0) return <Trophy className="h-6 w-6 text-[color:var(--gold)]" />;
@@ -94,7 +128,7 @@ function Index() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl space-y-6 px-6 py-8">
+      <main className={`mx-auto max-w-5xl space-y-6 px-6 py-8 ${oneByOne && canControl ? "pb-28" : ""}`}>
 
         {locked && (
           <div className="flex items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
@@ -156,6 +190,34 @@ function Index() {
           </div>
         </Card>
       </main>
+
+      {oneByOne && canControl && (
+        <div className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-6 py-3">
+            <span className="text-sm">
+              Révélées : <strong>{Math.min(step, reveal.total)}</strong> / {reveal.total}
+            </span>
+            <Button
+              size="sm"
+              disabled={step >= reveal.total}
+              onClick={() => setStep(step + 1)}
+            >
+              Révéler la suivante <ChevronRight className="ml-1 h-4 w-4" />
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setStep(0)}>
+              <RotateCcw className="mr-1 h-4 w-4" /> Recommencer
+            </Button>
+            {session?.role === "jury" && (
+              <Link
+                to="/president"
+                className="ml-auto text-xs text-muted-foreground underline underline-offset-4"
+              >
+                Réglages de proclamation
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
