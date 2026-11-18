@@ -21,6 +21,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { DEFAULT_CRITERIA, totalMax } from "@/lib/scoring";
 import { useCompetition } from "@/lib/useCompetition";
 import { listJuryCodes, setJuryCode } from "@/lib/access.functions";
+import { RevealSettingsCard } from "@/components/RevealSettingsCard";
 import {
   clearSession,
   readSession,
@@ -337,6 +338,7 @@ function PresidentPage() {
             </div>
           </Card>
         )}
+        {competition && <RevealSettingsCard competition={competition} teamCount={teams.length} />}
         <Card className="p-4">
           <h2 className="text-sm font-semibold">Mes compétitions</h2>
           <p className="mt-1 text-xs text-muted-foreground">

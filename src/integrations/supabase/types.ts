@@ -56,6 +56,10 @@ export type Database = {
           locked: boolean
           name: string
           owner_jury_id: string | null
+          reveal_count: number | null
+          reveal_mode: string
+          reveal_order: string
+          reveal_step: number
           updated_at: string
         }
         Insert: {
@@ -64,6 +68,10 @@ export type Database = {
           locked?: boolean
           name?: string
           owner_jury_id?: string | null
+          reveal_count?: number | null
+          reveal_mode?: string
+          reveal_order?: string
+          reveal_step?: number
           updated_at?: string
         }
         Update: {
@@ -72,6 +80,10 @@ export type Database = {
           locked?: boolean
           name?: string
           owner_jury_id?: string | null
+          reveal_count?: number | null
+          reveal_mode?: string
+          reveal_order?: string
+          reveal_step?: number
           updated_at?: string
         }
         Relationships: [

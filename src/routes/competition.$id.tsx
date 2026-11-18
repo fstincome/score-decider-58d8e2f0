@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Award, ClipboardList, Lock, Medal, Trophy } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { buildRanking } from "@/lib/scoring";
+import { buildRanking, computeReveal } from "@/lib/scoring";
 import { useCompetition } from "@/lib/useCompetition";
 
 export const Route = createFileRoute("/competition/$id")({
@@ -35,6 +35,17 @@ function Index() {
   const ranking = buildRanking(teams, criteria, scores)
     .filter((r) => r.submitted > 0)
     .sort((a, b) => b.avg - a.avg);
+
+  const reveal = computeReveal(ranking, {
+    reveal_order: competition?.reveal_order ?? "best_first",
+    reveal_count: competition?.reveal_count ?? null,
+    reveal_mode: competition?.reveal_mode ?? "all",
+    reveal_step: competition?.reveal_step ?? 0,
+  });
+  const rows = locked
+    ? reveal.shown
+    : ranking.map((row, i) => ({ row, rank: i + 1 }));
+  const oneByOne = locked && competition?.reveal_mode === "one";
 
   const podiumIcon = (i: number) => {
     if (i === 0) return <Trophy className="h-6 w-6 text-[color:var(--gold)]" />;
@@ -87,15 +98,22 @@ function Index() {
             </p>
           </div>
           <div className="divide-y">
+            {locked && oneByOne && rows.length < reveal.total && (
+              <div className="px-5 py-6 text-center text-sm text-muted-foreground">
+                🥁 {rows.length === 0 ? "La proclamation va commencer…" : "Prochaine équipe…"} ({rows.length}/{reveal.total})
+              </div>
+            )}
             {ranking.length === 0 && (
               <div className="px-5 py-10 text-center text-sm text-muted-foreground">
                 Aucune note encore enregistrée.
               </div>
             )}
-            {ranking.map((r, i) => (
+            {rows.map(({ row: r, rank }) => {
+              const i = rank - 1;
+              return (
               <div
                 key={r.team.id}
-                className={`flex items-center gap-4 px-5 py-4 ${
+                className={`flex items-center gap-4 px-5 py-4 ${oneByOne ? (i === 0 ? "animate-reveal-gold" : "animate-reveal") : ""} ${
                   i === 0
                     ? "bg-gradient-to-r from-[color:var(--gold)]/15 to-transparent"
                     : i === 1
@@ -118,7 +136,8 @@ function Index() {
                   <div className="text-[10px] uppercase text-muted-foreground">/ {r.max}</div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </Card>
       </main>

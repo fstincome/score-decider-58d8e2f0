@@ -15,6 +15,13 @@
       "when": 1795000483322,
       "tag": "0001_random_alnum_codes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795002881236,
+      "tag": "0002_reveal_settings",
+      "breakpoints": true
     }
   ]
 }

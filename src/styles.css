@@ -146,3 +146,11 @@
     color: var(--color-foreground);
   }
 }
+
+@keyframes reveal-in {
+  0% { opacity: 0; transform: translateY(24px) scale(0.92); filter: blur(6px); }
+  60% { opacity: 1; transform: translateY(-4px) scale(1.03); filter: blur(0); }
+  100% { opacity: 1; transform: none; }
+}
+.animate-reveal { animation: reveal-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.animate-reveal-gold { animation: reveal-in 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) both; }

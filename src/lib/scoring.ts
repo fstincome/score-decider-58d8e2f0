@@ -3,7 +3,7 @@ export type Competition = {
   name: string;
   locked: boolean;
   created_at: string;
-};
+} & Partial<RevealSettings>;
 
 export type Criterion = {
   id: string;
@@ -73,4 +73,24 @@ export function buildRanking(
     };
   });
   return rows;
+}
+
+export type RevealSettings = {
+  reveal_order: string; // "best_first" | "last_first"
+  reveal_count: number | null; // null = toutes
+  reveal_mode: string; // "all" | "one"
+  reveal_step: number;
+};
+
+/**
+ * Sélectionne les équipes proclamées selon les réglages du président.
+ * `ranked` doit être trié du meilleur au moins bon. Retourne les lignes
+ * dans l'ordre d'affichage, avec leur rang réel (1 = premier).
+ */
+export function computeReveal<T>(ranked: T[], s: RevealSettings) {
+  const n = s.reveal_count && s.reveal_count > 0 ? Math.min(s.reveal_count, ranked.length) : ranked.length;
+  const top = ranked.slice(0, n).map((row, i) => ({ row, rank: i + 1 }));
+  const ordered = s.reveal_order === "last_first" ? [...top].reverse() : top;
+  const shown = s.reveal_mode === "one" ? ordered.slice(0, Math.max(0, Math.min(s.reveal_step, n))) : ordered;
+  return { shown, total: n };
 }
