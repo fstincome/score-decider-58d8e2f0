@@ -170,6 +170,27 @@ function PresidentPage() {
   };
 
 
+  /** Rééchelonne les notes déjà données quand le quota d'un critère change. */
+  const rescaleScores = async (
+    criterionId: string,
+    oldMax: number,
+    newMax: number,
+  ) => {
+    if (!competitionId || oldMax <= 0 || newMax === oldMax) return;
+    const { data: rows } = await supabase
+      .from("scores")
+      .select("id, value")
+      .eq("criterion_id", criterionId)
+      .eq("competition_id", competitionId);
+    if (!rows?.length) return;
+    const ratio = newMax / oldMax;
+    for (const r of rows) {
+      const v = Math.round(Number(r.value) * ratio * 100) / 100;
+      if (v !== Number(r.value))
+        await supabase.from("scores").update({ value: v }).eq("id", r.id);
+    }
+  };
+
   const renameCompetition = async (name: string) => {
     if (!competition) return;
     await supabase.from("competitions").update({ name }).eq("id", competition.id);
@@ -438,10 +459,19 @@ function PresidentPage() {
                       min={1}
                       className="w-24"
                       defaultValue={Number(c.max_points)}
-                      onBlur={(e) => {
+                      onBlur={async (e) => {
                         const v = parseFloat(e.target.value);
-                        if (!isNaN(v) && v > 0)
-                          supabase.from("criteria").update({ max_points: v }).eq("id", c.id);
+                        if (isNaN(v) || v <= 0 || v === Number(c.max_points)) return;
+                        const { error } = await supabase
+                          .from("criteria")
+                          .update({ max_points: v })
+                          .eq("id", c.id);
+                        if (error) return toast.error("Erreur : " + error.message);
+                        await rescaleScores(c.id, Number(c.max_points), v);
+                        await reload();
+                        toast.success(
+                          `Quota mis à jour : les notes de « ${c.label} » ont été adaptées.`,
+                        );
                       }}
                     />
                     <Button
