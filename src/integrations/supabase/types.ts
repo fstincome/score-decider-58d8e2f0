@@ -265,6 +265,7 @@ export type Database = {
         Args: { _code: string; _jury: string }
         Returns: undefined
       }
+      _random_code: { Args: never; Returns: string }
       admin_create_president: {
         Args: { _admin_code: string; _code: string; _name: string }
         Returns: string

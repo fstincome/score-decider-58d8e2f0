@@ -77,7 +77,7 @@ function AdminPage() {
     if (!adminCode) return;
     try {
       await createPresident({
-        data: { adminCode, name: form.name.trim(), code: form.code.trim() },
+        data: { adminCode, name: form.name.trim(), code: "" },
       });
       setForm({ name: "", code: "" });
       refresh();
@@ -87,10 +87,11 @@ function AdminPage() {
     }
   };
 
-  const changeCode = async (presidentId: string, code: string) => {
+  const changeCode = async (presidentId: string) => {
     if (!adminCode) return;
+    if (!confirm("Générer un nouveau code ? L'ancien ne fonctionnera plus.")) return;
     try {
-      await setPresidentCode({ data: { adminCode, presidentId, code } });
+      await setPresidentCode({ data: { adminCode, presidentId, code: "" } });
       refresh();
       toast.success("Code mis à jour");
     } catch (e) {
@@ -163,18 +164,7 @@ function AdminPage() {
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="pcode">Code d'accès</Label>
-              <Input
-                id="pcode"
-                className="w-32 text-center tracking-widest"
-                placeholder="1234"
-                inputMode="numeric"
-                value={form.code}
-                onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
-              />
-            </div>
-            <Button onClick={add}>
+                        <Button onClick={add}>
               <Plus className="mr-2 h-4 w-4" /> Créer
             </Button>
           </div>
@@ -202,16 +192,10 @@ function AdminPage() {
                     )}
                   </p>
                 </div>
-                <Input
-                  className="w-28 text-center tracking-widest"
-                  defaultValue={p.code}
-                  key={p.code || p.id}
-                  placeholder="code"
-                  onBlur={(e) => {
-                    const v = e.target.value.trim();
-                    if (v && v !== p.code) changeCode(p.id, v);
-                  }}
-                />
+                <code className="rounded bg-muted px-2 py-1 font-mono text-sm tracking-wider">{p.code}</code>
+                <Button size="sm" variant="outline" onClick={() => changeCode(p.id)}>
+                  Nouveau code
+                </Button>
                 <Button
                   size="icon"
                   variant="ghost"

@@ -83,12 +83,12 @@ function LoginPage() {
             <Label htmlFor="code">Code d'accès</Label>
             <Input
               id="code"
-              inputMode="numeric"
+              autoCapitalize="characters"
               autoComplete="one-time-code"
-              placeholder="••••"
+              placeholder="XXXXXXXXXX"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="text-center text-2xl tracking-[0.4em]"
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              className="text-center font-mono text-xl tracking-[0.25em]"
             />
           </div>
           <Button type="submit" size="lg" className="w-full" disabled={busy}>

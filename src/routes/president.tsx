@@ -217,8 +217,6 @@ function PresidentPage() {
     if (!competitionId || !myCode) return;
     const name = newJury.name.trim();
     if (!name) return toast.error("Nom du juré requis.");
-    if (!/^\d{3,8}$/.test(newJury.code.trim()))
-      return toast.error("Code : 3 à 8 chiffres.");
     const { data, error } = await supabase
       .from("juries")
       .insert({ competition_id: competitionId, name, is_president: false })
@@ -227,7 +225,7 @@ function PresidentPage() {
     if (error || !data) return toast.error("Erreur : " + (error?.message ?? ""));
     try {
       await setJuryCode({
-        data: { code: myCode, juryId: data.id, juryCode: newJury.code.trim() },
+        data: { code: myCode, juryId: data.id, juryCode: "" },
       });
     } catch (e) {
       await supabase.from("juries").delete().eq("id", data.id);
@@ -238,10 +236,11 @@ function PresidentPage() {
     toast.success("Juré ajouté");
   };
 
-  const changeCode = async (juryId: string, juryCode: string) => {
+  const changeCode = async (juryId: string) => {
     if (!myCode) return;
+    if (!confirm("Générer un nouveau code ? L'ancien ne fonctionnera plus.")) return;
     try {
-      await setJuryCode({ data: { code: myCode, juryId, juryCode } });
+      await setJuryCode({ data: { code: myCode, juryId, juryCode: "" } });
       refreshCodes();
       toast.success("Code mis à jour");
     } catch (e) {
@@ -537,16 +536,10 @@ function PresidentPage() {
                       <span className="text-xs text-muted-foreground">Président</span>
                     ) : (
                       <>
-                        <Input
-                          className="w-28 text-center tracking-widest"
-                          key={codes[j.id] ?? j.id}
-                          defaultValue={codes[j.id] ?? ""}
-                          placeholder="code"
-                          onBlur={(e) => {
-                            const v = e.target.value.trim();
-                            if (v && v !== codes[j.id]) changeCode(j.id, v);
-                          }}
-                        />
+                        <code className="rounded bg-muted px-2 py-1 font-mono text-sm tracking-wider">{codes[j.id] ?? "—"}</code>
+                        <Button size="sm" variant="outline" onClick={() => changeCode(j.id)}>
+                          Nouveau code
+                        </Button>
                         <Button
                           size="icon"
                           variant="ghost"
@@ -569,13 +562,6 @@ function PresidentPage() {
                     className="flex-1"
                     value={newJury.name}
                     onChange={(e) => setNewJury((n) => ({ ...n, name: e.target.value }))}
-                  />
-                  <Input
-                    className="w-28 text-center tracking-widest"
-                    placeholder="code"
-                    inputMode="numeric"
-                    value={newJury.code}
-                    onChange={(e) => setNewJury((n) => ({ ...n, code: e.target.value }))}
                   />
                   <Button onClick={addJury}>
                     <Plus className="mr-2 h-4 w-4" /> Ajouter
