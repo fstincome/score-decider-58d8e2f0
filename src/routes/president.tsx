@@ -69,7 +69,7 @@ function PresidentPage() {
   const myCode = session?.role === "jury" ? session.code : "";
   const myId = session?.role === "jury" ? session.juryId : "";
   const competitionId = session?.role === "jury" ? session.competitionId : null;
-  const { competition, criteria, teams, juries } = useCompetition(competitionId);
+  const { competition, criteria, teams, juries, reload } = useCompetition(competitionId);
 
   const [newComp, setNewComp] = useState("");
   const [newTeam, setNewTeam] = useState("");
@@ -199,6 +199,7 @@ function PresidentPage() {
     });
     if (error) return toast.error("Erreur : " + error.message);
     setNewCrit({ label: "", max: "10" });
+    await reload();
   };
 
   const addTeam = async () => {
@@ -211,6 +212,8 @@ function PresidentPage() {
       .insert({ competition_id: competitionId, project_number: nextNum, name });
     if (error) return toast.error("Erreur : " + error.message);
     setNewTeam("");
+    await reload();
+    toast.success("Équipe ajoutée");
   };
 
   const addJury = async () => {
@@ -232,6 +235,7 @@ function PresidentPage() {
       return toast.error((e as Error).message);
     }
     setNewJury({ name: "", code: "" });
+    await reload();
     refreshCodes();
     toast.success("Juré ajouté");
   };
@@ -494,6 +498,7 @@ function PresidentPage() {
                       onClick={async () => {
                         if (!confirm(`Supprimer « ${t.name} » ?`)) return;
                         await supabase.from("teams").delete().eq("id", t.id);
+                        await reload();
                       }}
                       aria-label="Supprimer l'équipe"
                     >
@@ -505,6 +510,7 @@ function PresidentPage() {
                   <Input
                     placeholder="Nouvelle équipe"
                     value={newTeam}
+                    onKeyDown={(e) => e.key === "Enter" && addTeam()}
                     onChange={(e) => setNewTeam(e.target.value)}
                   />
                   <Button onClick={addTeam}>
@@ -546,6 +552,7 @@ function PresidentPage() {
                           onClick={async () => {
                             if (!confirm(`Supprimer le juré « ${j.name} » ?`)) return;
                             await supabase.from("juries").delete().eq("id", j.id);
+                            await reload();
                             refreshCodes();
                           }}
                           aria-label="Supprimer le juré"
@@ -561,6 +568,7 @@ function PresidentPage() {
                     placeholder="Nom du juré"
                     className="flex-1"
                     value={newJury.name}
+                    onKeyDown={(e) => e.key === "Enter" && addJury()}
                     onChange={(e) => setNewJury((n) => ({ ...n, name: e.target.value }))}
                   />
                   <Button onClick={addJury}>
