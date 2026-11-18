@@ -9,7 +9,7 @@ export function useCompetitions() {
   const load = useCallback(async () => {
     const { data } = await supabase
       .from("competitions")
-      .select("id, name, locked, created_at")
+      .select("id, name, locked, created_at, slug")
       .order("created_at", { ascending: false });
     setCompetitions((data ?? []) as Competition[]);
     setLoading(false);
@@ -52,7 +52,7 @@ export function useCompetition(competitionId: string | null) {
     const [comp, crit, tms, jrs, scs] = await Promise.all([
       supabase
         .from("competitions")
-        .select("id, name, locked, created_at, reveal_order, reveal_count, reveal_mode, reveal_step")
+        .select("id, name, locked, created_at, slug, reveal_order, reveal_count, reveal_mode, reveal_step")
         .eq("id", competitionId)
         .maybeSingle(),
       supabase

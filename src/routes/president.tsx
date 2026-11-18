@@ -318,7 +318,7 @@ function PresidentPage() {
             <div className="min-w-0">
               <h2 className="text-sm font-semibold">Lien du classement (privé)</h2>
               <p className="truncate text-xs text-muted-foreground">
-                {typeof window !== "undefined" ? window.location.origin : ""}/competition/{competition.id}
+                {typeof window !== "undefined" ? window.location.origin : ""}/competition/{competition.slug ?? competition.id}
               </p>
             </div>
             <div className="flex gap-2">
@@ -326,13 +326,13 @@ function PresidentPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/competition/${competition.id}`);
+                  navigator.clipboard.writeText(`${window.location.origin}/competition/${competition.slug ?? competition.id}`);
                   toast.success("Lien copié");
                 }}
               >
                 Copier
               </Button>
-              <Link to="/competition/$id" params={{ id: competition.id }}>
+              <Link to="/competition/$id" params={{ id: competition.slug ?? competition.id }}>
                 <Button size="sm">Ouvrir</Button>
               </Link>
             </div>

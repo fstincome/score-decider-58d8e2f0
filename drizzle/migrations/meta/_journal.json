@@ -22,6 +22,13 @@
       "when": 1795002881236,
       "tag": "0002_reveal_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795003094450,
+      "tag": "0003_competition_slug",
+      "breakpoints": true
     }
   ]
 }

@@ -229,7 +229,7 @@ function AllCompetitions() {
             <span className="text-xs text-muted-foreground">Aucune compétition.</span>
           )}
           {competitions.map((c) => (
-            <Link key={c.id} to="/competition/$id" params={{ id: c.id }}>
+            <Link key={c.id} to="/competition/$id" params={{ id: c.slug ?? c.id }}>
               <Button size="sm" variant="outline">{c.name}{c.locked ? " 🔒" : ""}</Button>
             </Link>
           ))}

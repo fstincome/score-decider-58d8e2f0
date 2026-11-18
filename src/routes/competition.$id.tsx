@@ -4,6 +4,20 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { buildRanking, computeReveal } from "@/lib/scoring";
 import { useCompetition } from "@/lib/useCompetition";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function useResolvedId(param: string) {
+  const [id, setId] = useState<string | null>(UUID_RE.test(param) ? param : null);
+  useEffect(() => {
+    if (UUID_RE.test(param)) { setId(param); return; }
+    supabase.from("competitions").select("id").eq("slug", param.toLowerCase()).maybeSingle()
+      .then(({ data }) => setId(data?.id ?? null));
+  }, [param]);
+  return id;
+}
 
 export const Route = createFileRoute("/competition/$id")({
   head: () => ({
@@ -28,7 +42,8 @@ export const Route = createFileRoute("/competition/$id")({
 });
 
 function Index() {
-  const { id } = Route.useParams();
+  const { id: param } = Route.useParams();
+  const id = useResolvedId(param);
   const { competition, criteria, teams, juries, scores } = useCompetition(id);
   const locked = !!competition?.locked;
 

@@ -60,6 +60,7 @@ export type Database = {
           reveal_mode: string
           reveal_order: string
           reveal_step: number
+          slug: string | null
           updated_at: string
         }
         Insert: {
@@ -72,6 +73,7 @@ export type Database = {
           reveal_mode?: string
           reveal_order?: string
           reveal_step?: number
+          slug?: string | null
           updated_at?: string
         }
         Update: {
@@ -84,6 +86,7 @@ export type Database = {
           reveal_mode?: string
           reveal_order?: string
           reveal_step?: number
+          slug?: string | null
           updated_at?: string
         }
         Relationships: [
